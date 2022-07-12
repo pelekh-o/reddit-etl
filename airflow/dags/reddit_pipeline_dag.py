@@ -1,25 +1,34 @@
 import pendulum
 
-from airflow import DAG
 from airflow.decorators import dag, task
-from airflow.operators.python_operator import PythonOperator
 
 import extraction.reddit_service as reddit_service
 
 
-with DAG(
-        'reddit_etl', 
-        description='Reddit ETL Python DAG', 
-        schedule_interval='20 * * * *', 
-        start_date=pendulum.datetime(2022, 7, 1, tz="UTC"), 
-        catchup=False,
-        tags=['reddit']
-    ) as dag:
+@dag(
+    description='Reddit ETL Python DAG', 
+    schedule_interval='0 0 * * *', 
+    start_date=pendulum.datetime(2022, 7, 1, tz="UTC"), 
+    catchup=False,
+    tags=['reddit']
+)
+def reddit_etl():
 
-    python_task	= PythonOperator(
-        task_id='extract_posts_data', 
-        python_callable=reddit_service.extract_posts_data
-    )
-
-python_task
+    @task(task_id='extract_posts_data')
+    def extract_posts():
+        return reddit_service.extract_posts_data()
+        
     
+    @task(task_id='transform_posts_data')
+    def transform_posts(extracted_data_list: list):
+        return reddit_service.transform_posts(extracted_data_list)
+
+    @task(task_id='save_data_locally')
+    def save_to_csv(posts_list: list):
+        reddit_service.save_to_csv(posts_list)
+
+    extracted_posts_list = extract_posts()
+    transformed_posts_list = transform_posts(extracted_posts_list)
+    save_to_csv(transformed_posts_list)
+
+reddit_etl_dag = reddit_etl()
