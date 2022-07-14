@@ -5,4 +5,5 @@ airflow/logs
 airflow/plugins
 pipeline.conf
 __pycache__
+client_secrets.json
 test.py

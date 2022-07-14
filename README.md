@@ -13,8 +13,10 @@
         ```
     * Add required libraries to the ```docker-compose.yaml``` 
         ```yaml
-        _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- praw pandas}
+        _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- praw pandas pygsheet}
         ```
+         This is a development/test feature only. NEVER use it in production!
+Instead, build a custom image as described in [the docs](https://airflow.apache.org/docs/docker-stack/build.html) .
     * In the project/airflow directory run 
         ```bash
         mkdir -p ./dags ./logs ./plugins
@@ -33,15 +35,15 @@
         ```bash
         docker-compose up
         ```
-        The Airflow webserver is availble at http://localhost:8080
+        The Airflow webserver is available at http://localhost:8080
 
 
 1. **Setup Reddit App**
-    * First of all, you'll need an active reddit account
+    * First, you'll need an active reddit account
     * Go to [reddit.com/prefs/apps](https://reddit.com/prefs/apps). If previous link doesn't work for you, try [old.reddit.com/prefs/apps/](https://old.reddit.com/prefs/apps/)
     * Select **create another app**. Make sure to select **Script** option
-    * Fill in description and optional fileds. Click **create app**
-    * Next you will see ypur client id and secret. These values will be 
+    * Fill in description and optional fields. Click **create app**
+    * Next you will see your client id and secret. These values will be 
     needed in the next steps
 
 
