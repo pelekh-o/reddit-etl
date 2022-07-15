@@ -1,9 +1,7 @@
 import pygsheets
 import pandas as pd
 from os.path import join, dirname
-
-FILE_TITLE = 'api_test'
-SHEET_TITLE = 'Sheet1'
+import extraction.config_helper as config_helper
 
 
 def upload(data):
@@ -28,11 +26,13 @@ def upload(data):
 
 
 def _get_worksheet():
-    # Authenticate this application with a Google account
-    gc = pygsheets.authorize(service_file=join(dirname(__file__),'client_secrets.json'))
+    gdrive_configs = config_helper.get_config_section('gdrive')
 
-    sheet = gc.open(FILE_TITLE)
-    return sheet.worksheet_by_title(SHEET_TITLE)
+    # Authenticate this application with a Google account
+    gc = pygsheets.authorize(service_file=join(dirname(__file__), 'client_secrets.json'))
+
+    file = gc.open(gdrive_configs.get('file_title'))
+    return file.worksheet_by_title(gdrive_configs.get('sheet_title'))
 
 
 def _check_available_rows(worksheet, active_rows, df_rows):

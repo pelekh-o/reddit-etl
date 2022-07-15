@@ -3,7 +3,7 @@
 venv/
 airflow/logs
 airflow/plugins
-pipeline.conf
 __pycache__
+pipeline_secrets.conf
 client_secrets.json
 test.py
