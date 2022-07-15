@@ -4,14 +4,18 @@ import sys
 from datetime import datetime
 import extraction.config_helper as config_helper
 
-SUBREDDIT = 'ukraine'
-POSTS_NUM = 50
+SECRETS_FILE = 'pipeline_secrets.conf'
 
 
 def extract_posts_data():
     reddit_service = _get_reddit_service()
-    subreddit = reddit_service.subreddit(SUBREDDIT)
-    submissions = subreddit.top(time_filter='day', limit=POSTS_NUM)
+
+    reddit_configs = config_helper.get_config_section('reddit')
+    subreddit = reddit_service.subreddit(reddit_configs.get('subreddit'))
+    posts_num = reddit_configs.get('posts_num')
+    posts_num = int(posts_num) if posts_num.isdigit() else None
+
+    submissions = subreddit.top(time_filter='day', limit=posts_num)
 
     submissions_list = []
     for s in submissions:
@@ -23,7 +27,8 @@ def extract_posts_data():
 
 
 def _get_reddit_service():
-    reddit_configs = config_helper.get_config_section('reddit')
+    reddit_configs = config_helper.get_config_section('reddit', SECRETS_FILE)
+
     try:
         return praw.Reddit(client_id=reddit_configs.get('client_id'),
                            client_secret=reddit_configs.get('client_secret'),
@@ -50,6 +55,9 @@ def transform_posts(posts_list):
 
 
 def save_to_csv(extracted_data):
+    reddit_configs = config_helper.get_config_section('reddit')
+    subreddit = reddit_configs.get('subreddit')
     extracted_data_df = pd.DataFrame(extracted_data)
-    filename = f'/tmp/r_{SUBREDDIT}_{datetime.now().strftime("%Y%m%d")}.csv'
+
+    filename = f'/tmp/r_{subreddit}_{datetime.now().strftime("%Y%m%d")}.csv'
     extracted_data_df.to_csv(filename, index=False, encoding='utf-8')

@@ -1,10 +1,13 @@
 from configparser import RawConfigParser, NoSectionError
 from os.path import join, dirname
 
+PIPELINE_CONF = 'pipeline.conf'
 
-def get_config_section(section):
+
+def get_config_section(section, config_file=None):
     config = RawConfigParser()
-    config_file = 'pipeline.conf'
+    if not config_file:
+        config_file = PIPELINE_CONF
     config.read(join(dirname(__file__), config_file))
     try:
         configs_dict = dict(config.items(section))
